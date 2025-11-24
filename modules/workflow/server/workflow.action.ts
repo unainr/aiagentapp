@@ -1,22 +1,67 @@
-"use server"
+"use server";
 
 import { db } from "@/drizzle/db";
-import { agents } from "@/drizzle/schema";
+import { agents, workflows } from "@/drizzle/schema";
 import { auth } from "@clerk/nextjs/server";
+import { desc, eq } from "drizzle-orm";
 
-interface Props{
-    agentName:string
-} 
-export const addAgent = async ({agentName}:Props) => { 
-    const {userId} = await auth()
-    if(!userId) throw new Error('user id not find')
-    try {
-        const [data] = await db.insert(agents).values({
-            agent_name:agentName,
-            userId,
-        }).returning()
-        return data
-} catch (error:any) {
-    console.log(error.message)
+interface Props {
+	agentName: string;
 }
-  }
+// TODO: Create Agent
+export const addAgent = async ({ agentName }: Props) => {
+	const { userId } = await auth();
+	if (!userId) throw new Error("user id not find");
+	try {
+		const [data] = await db
+			.insert(agents)
+			.values({
+				agent_name: agentName,
+				userId,
+			})
+			.returning();
+		return data;
+	} catch (error: any) {
+		console.log(error.message);
+	}
+};
+// TODO: Exiting Work Flow Agent
+export const exitingWorkFlowAgent = async (agentId: string) => {
+	try {
+		const exitingworkflow = await db
+			.select()
+			.from(workflows)
+			.where(eq(workflows.id, agentId));
+		if (!exitingworkflow || exitingworkflow.length === 0) {
+			throw new Error("workflow not found");
+		}
+		return { success: true, data: exitingworkflow[0] };
+	} catch (error) {
+		return {
+			success: false,
+			error,
+		};
+	}
+};
+
+// TODO: Get Exiting Work Flow
+
+export const getExitingWorkFlow = async () => { 
+try {
+    const result = await db.select().from(agents)
+    return {success:true,data:result}
+} catch (error) {
+return {success:false,error}
+}
+} 
+
+// TODO: Later on Un Comment it 
+// export async function getUserAgents(userId: string) {
+//   const userAgents = await db
+//     .select()
+//     .from(agents)
+//     .where(eq(agents.userId,userId))
+//     .orderBy(desc(agents.createdAt))
+
+//   return userAgents
+// }

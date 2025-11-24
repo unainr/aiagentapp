@@ -42,13 +42,13 @@ export default function MainHeader() {
 					</Link>
 
 					<Link
-						href="/create-companion"
+						href="/workflow"
 						className={cn(
 							"text-sm font-medium transition-colors ",
-							isActive("/create-companion") &&
+							isActive("/workflow") &&
 								"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
 						)}>
-						Create Companion
+						Work Flow
 					</Link>
 					<Link
 						href="/learning-ai"
@@ -113,13 +113,13 @@ export default function MainHeader() {
 									Home
 								</Link>
 								<Link
-									href="/learning-ai"
+									href="workflow"
 									className={cn(
 										"text-sm font-medium transition-colors ",
-										isActive("/learning-ai") &&
+										isActive("/workflow") &&
 											"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
 									)}>
-									Learning
+									Work Flow
 								</Link>
 								<Link
 									href="/journey"
