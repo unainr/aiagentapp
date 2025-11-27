@@ -23,7 +23,7 @@ export function CreateAgentDialog() {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const [agentName, setAgentName] = useState("");
-const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -32,7 +32,7 @@ const [open, setOpen] = useState(false);
 			setLoading(true);
 			const data = await addAgent({ agentName });
 			if (data) {
-                  setOpen(false);      
+				setOpen(false);
 				router.push(`/workflow/${data.id}`);
 			} else {
 				toast.error("Agent not created");
