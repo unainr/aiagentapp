@@ -4,6 +4,7 @@ import { db } from "@/drizzle/db";
 import { agents, workflows } from "@/drizzle/schema";
 import { auth } from "@clerk/nextjs/server";
 import { desc, eq } from "drizzle-orm";
+import { updateTag } from "next/cache";
 
 interface Props {
 	agentName: string;
@@ -20,6 +21,7 @@ export const addAgent = async ({ agentName }: Props) => {
 				userId,
 			})
 			.returning();
+			updateTag('workflow-agent-create')
 		return data;
 	} catch (error: any) {
 		console.log(error.message);
@@ -48,7 +50,7 @@ export const exitingWorkFlowAgent = async (agentId: string) => {
 
 export const getExitingWorkFlow = async () => { 
 try {
-    const result = await db.select().from(agents)
+    const result = await db.select({id:agents.id,name:agents.agent_name}).from(agents)
     return {success:true,data:result}
 } catch (error) {
 return {success:false,error}

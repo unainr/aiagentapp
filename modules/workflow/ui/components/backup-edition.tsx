@@ -19,26 +19,30 @@ import {
 import "@xyflow/react/dist/style.css";
 import { StartNode } from "./nodes/start-node";
 import { AgentNode } from "./nodes/agent-node";
-import { AgentWorkflowPanel } from "./agent-workflow-panel";
 import { EndNode } from "./nodes/end-node";
-import { WhileNode } from "./nodes/while-node";
 import { IfElseNode } from "./nodes/if-else-node";
+import { WhileNode } from "./nodes/while-node";
 import { APINode } from "./nodes/api-node";
-import { NodeData, NodeDialog } from "./nodes/nodes-dialog";
-import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { AgentWorkflowPanel } from "./agent-workflow-panel";
 import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
+// import { saveWorkflow } from "@/actions/workflow-actions";
+import { toast } from "sonner";
+import { NodeData, NodeDialog } from "./nodes/nodes-dialog";
+import { saveWorkflow } from "../../server/workflow-create.action";
+import { AgentChat } from "@/components/ui/chat-ui";
 
 const initialNodes: Node[] = [
-	{
-		id: "start-node",
-		position: { x: 0, y: 0 },
-		data: { label: "Start" },
-		type: "StartNode",
+	{ 
+		id: "start-node", 
+		position: { x: 250, y: 50 }, 
+		data: { label: "Start" }, 
+		type: 'StartNode' 
 	},
 ];
+
 const initialEdges: Edge[] = [];
-// TODO: Custom Nodes Type
+
 const nodesTypes = {
 	StartNode: StartNode,
 	AgentNode: AgentNode,
@@ -47,6 +51,9 @@ const nodesTypes = {
 	WhileNode: WhileNode,
 	APINode: APINode,
 };
+
+let id = 1;
+
 interface EditorProps {
 	agentId?: string;
 	initialWorkflow?: {
@@ -54,7 +61,8 @@ interface EditorProps {
 		edges: Edge[];
 	};
 }
-export const Editor = ({ initialWorkflow }: EditorProps) => {
+
+export const Editor = ({ agentId, initialWorkflow }: EditorProps) => {
 	const [nodes, setNodes] = useState<Node[]>(
 		initialWorkflow?.nodes || initialNodes
 	);
@@ -62,8 +70,8 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 		initialWorkflow?.edges || initialEdges
 	);
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
-	const [reactFlowInstance, setReactFlowInstance] =
-		useState<ReactFlowInstance | null>(null);
+	const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+	
 	// Dialog state
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [selectedNode, setSelectedNode] = useState<{
@@ -79,40 +87,38 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 			setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
 		[]
 	);
+
 	const onEdgesChange = useCallback(
 		(changes: EdgeChange[]) =>
 			setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
 		[]
 	);
+
 	const onConnect = useCallback(
 		(params: Connection) =>
 			setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
 		[]
 	);
 
-	// Handle drag over event
 	const onDragOver = useCallback((event: DragEvent) => {
 		event.preventDefault();
-		event.dataTransfer.dropEffect = "move";
+		event.dataTransfer.dropEffect = 'move';
 	}, []);
 
 	// Handle node click to open dialog
-	const handleNodeClick = useCallback(
-		(nodeId: string, nodeType: string, nodeData: NodeData) => {
-			if (nodeType === "StartNode") return; // Don't open dialog for start node
-
-			setSelectedNode({
-				id: nodeId,
-				type: nodeType,
-				data: nodeData,
-			});
-			setDialogOpen(true);
-		},
-		[]
-	);
+	const handleNodeClick = useCallback((nodeId: string, nodeType: string, nodeData: NodeData) => {
+		if (nodeType === "StartNode") return; // Don't open dialog for start node
+		
+		setSelectedNode({
+			id: nodeId,
+			type: nodeType,
+			data: nodeData,
+		});
+		setDialogOpen(true);
+	}, []);
 
 	// Add onNodeClick callback to all nodes
-	const nodesWithCallback = nodes.map((node) => ({
+	const nodesWithCallback = nodes.map(node => ({
 		...node,
 		data: {
 			...node.data,
@@ -120,14 +126,13 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 		},
 	}));
 
-	// Handle drop event
 	const onDrop = useCallback(
 		(event: DragEvent) => {
 			event.preventDefault();
 
-			const type = event.dataTransfer.getData("application/reactflow");
-
-			if (typeof type === "undefined" || !type || !reactFlowInstance) {
+			const type = event.dataTransfer.getData('application/reactflow');
+			
+			if (typeof type === 'undefined' || !type || !reactFlowInstance) {
 				return;
 			}
 
@@ -137,55 +142,73 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 			});
 
 			const newNode: Node = {
-				id: crypto.randomUUID(),
+				id: `node_${id++}`,
 				type,
 				position,
-				data: { label: `${type}` },
+				data: { 
+					label: `${type.replace("Node", "")}`,
+					onNodeClick: handleNodeClick,
+				},
 			};
 
 			setNodes((nds) => nds.concat(newNode));
 		},
-		[reactFlowInstance]
+		[reactFlowInstance, handleNodeClick]
 	);
 
 	// Save node data from dialog
-	const handleSaveNodeData = useCallback(
-		(data: NodeData) => {
-			if (!selectedNode) return;
+	const handleSaveNodeData = useCallback((data: NodeData) => {
+		if (!selectedNode) return;
 
-			setNodes((nds) =>
-				nds.map((node) =>
-					node.id === selectedNode.id
-						? {
-								...node,
-								data: {
-									...node.data,
-									...data,
-									onNodeClick: handleNodeClick,
-								},
-						  }
-						: node
-				)
-			);
-		},
-		[selectedNode, handleNodeClick]
-	);
+		setNodes((nds) =>
+			nds.map((node) =>
+				node.id === selectedNode.id
+					? { 
+						...node, 
+						data: { 
+							...node.data, 
+							...data,
+							onNodeClick: handleNodeClick,
+						} 
+					}
+					: node
+			)
+		);
+	}, [selectedNode, handleNodeClick]);
 
 	// Save workflow to database
 	const handleSaveWorkflow = async () => {
-		const cleanNodes = nodes.map((node) => ({
-			...node,
-			data: {
-				label: node.data.label,
-				instruction: node.data.instruction,
-				apiEndpoint: node.data.apiEndpoint,
-				condition: node.data.condition,
-				loopCondition: node.data.loopCondition,
-			},
-		}));
-		console.log(cleanNodes);
-		toast.success("Workflow saved successfully!");
+		setIsSaving(true);
+		try {
+			// Remove onNodeClick from data before saving
+			const cleanNodes = nodes.map(node => ({
+				...node,
+				data: {
+					label: node.data.label,
+					instruction: node.data.instruction,
+					apiEndpoint: node.data.apiEndpoint,
+					condition: node.data.condition,
+					loopCondition: node.data.loopCondition,
+				}
+			}));
+			if(agentId){
+
+				await saveWorkflow({
+					agentId,
+					nodes: cleanNodes,
+					edges,
+				});
+			}
+			
+			toast.success("Workflow saved successfully!");
+		} catch (error) {
+			console.error("Error saving workflow:", error);
+			toast.error("Failed to save workflow");
+		} finally {
+			setIsSaving(false);
+		}
 	};
+
 	return (
 		<>
 			<div style={{ width: "100vw", height: "100vh" }} ref={reactFlowWrapper}>
@@ -202,22 +225,25 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 					nodeTypes={nodesTypes}
 					proOptions={{
 						hideAttribution: true,
-					}}>
+					}}
+				>
 					<Panel position="center-left">
 						<AgentWorkflowPanel />
 					</Panel>
 					<Panel position="center-right">
-						<Button
+						<Button 
 							onClick={handleSaveWorkflow}
 							disabled={isSaving}
-							className="gap-2">
+							className="gap-2"
+						>
 							<Save className="size-4" />
 							{isSaving ? "Saving..." : "Save Workflow"}
 						</Button>
+						<AgentChat agentId={agentId!} agentName='' />
 					</Panel>
 					<Background gap={12} size={1} />
 					<Controls />
-					<MiniMap />
+					{/* <MiniMap /> */}
 				</ReactFlow>
 			</div>
 

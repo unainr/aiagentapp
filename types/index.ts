@@ -1,9 +1,10 @@
 // Type for a single agent row
-export type Agent = [{
+export type Agent = {
   id: string
-  userId: string
-  agent_name: string
-  isPublished: boolean
-  createdAt: Date
-  updatedAt: Date
-}]
+  name: string
+}
+
+export interface Props{
+	data:any
+	id:string
+}
