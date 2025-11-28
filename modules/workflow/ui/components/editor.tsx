@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef, DragEvent } from "react";
+import { useState, useCallback, useRef, DragEvent, useEffect } from "react";
 import {
 	ReactFlow,
 	applyNodeChanges,
@@ -28,6 +28,9 @@ import { NodeData, NodeDialog } from "./nodes/nodes-dialog";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { saveWorkflow } from "../../server/workflow-create.action";
+import { Spinner } from "@/components/ui/spinner";
+import { WorkflowChat } from "@/components/ui/chat-ui";
 
 const initialNodes: Node[] = [
 	{
@@ -54,7 +57,7 @@ interface EditorProps {
 		edges: Edge[];
 	};
 }
-export const Editor = ({ initialWorkflow }: EditorProps) => {
+export const Editor = ({ agentId, initialWorkflow }: EditorProps) => {
 	const [nodes, setNodes] = useState<Node[]>(
 		initialWorkflow?.nodes || initialNodes
 	);
@@ -171,20 +174,60 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 		[selectedNode, handleNodeClick]
 	);
 
+	// Update nodes when initialWorkflow changes
+	useEffect(() => {
+		if (initialWorkflow?.nodes) {
+			setNodes(
+				initialWorkflow.nodes.map((node) => ({
+					...node,
+					data: {
+						...node.data,
+						onNodeClick: handleNodeClick,
+					},
+				}))
+			);
+		}
+		if (initialWorkflow?.edges) {
+			setEdges(initialWorkflow.edges);
+		}
+	}, [initialWorkflow, handleNodeClick]);
+
 	// Save workflow to database
 	const handleSaveWorkflow = async () => {
-		const cleanNodes = nodes.map((node) => ({
-			...node,
-			data: {
-				label: node.data.label,
-				instruction: node.data.instruction,
-				apiEndpoint: node.data.apiEndpoint,
-				condition: node.data.condition,
-				loopCondition: node.data.loopCondition,
-			},
-		}));
-		console.log(cleanNodes);
-		toast.success("Workflow saved successfully!");
+		if (!agentId) {
+			// ADD THIS CHECK
+			toast.error("Agent ID is required");
+			return;
+		}
+		try {
+			setIsSaving(true);
+			const cleanNodes = nodes.map((node) => ({
+				...node,
+				data: {
+					label: node.data.label,
+					instruction: node.data.instruction,
+					apiEndpoint: node.data.apiEndpoint,
+					apiMethod: node.data.apiMethod, // ADD THIS
+					apiHeaders: node.data.apiHeaders, // ADD THIS
+					apiBody: node.data.apiBody, // ADD THIS
+					condition: node.data.condition,
+					loopCondition: node.data.loopCondition,
+				},
+			}));
+			if (agentId) {
+				await saveWorkflow({
+					agentId,
+					nodes: cleanNodes,
+					edges,
+				});
+			}
+			toast.success("Workflow saved successfully");
+		} catch (error) {
+			toast.error("Error saving workflow:");
+			console.log("Failed to save workflow");
+		} finally {
+			setIsSaving(false);
+		}
 	};
 	return (
 		<>
@@ -206,18 +249,29 @@ export const Editor = ({ initialWorkflow }: EditorProps) => {
 					<Panel position="center-left">
 						<AgentWorkflowPanel />
 					</Panel>
-					<Panel position="center-right">
+					<Panel position="bottom-center">
 						<Button
 							onClick={handleSaveWorkflow}
 							disabled={isSaving}
 							className="gap-2">
 							<Save className="size-4" />
-							{isSaving ? "Saving..." : "Save Workflow"}
+							{isSaving ? (
+								<>
+									Saving...
+									<Spinner />
+								</>
+							) : (
+								"Save"
+							)}
 						</Button>
+					</Panel>
+					<Panel position="bottom-right">
+						<WorkflowChat workflowId={agentId!} />
+
 					</Panel>
 					<Background gap={12} size={1} />
 					<Controls />
-					<MiniMap />
+					{/* <MiniMap /> */}
 				</ReactFlow>
 			</div>
 

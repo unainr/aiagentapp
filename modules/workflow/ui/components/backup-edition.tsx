@@ -30,7 +30,6 @@ import { Save } from "lucide-react";
 import { toast } from "sonner";
 import { NodeData, NodeDialog } from "./nodes/nodes-dialog";
 import { saveWorkflow } from "../../server/workflow-create.action";
-import { AgentChat } from "@/components/ui/chat-ui";
 
 const initialNodes: Node[] = [
 	{ 
@@ -239,7 +238,7 @@ export const Editor = ({ agentId, initialWorkflow }: EditorProps) => {
 							<Save className="size-4" />
 							{isSaving ? "Saving..." : "Save Workflow"}
 						</Button>
-						<AgentChat agentId={agentId!} agentName='' />
+						{/* <AgentChat agentId={agentId!} agentName='' /> */}
 					</Panel>
 					<Background gap={12} size={1} />
 					<Controls />

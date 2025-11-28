@@ -67,3 +67,21 @@ return {success:false,error}
 
 //   return userAgents
 // }
+
+export const deleteAgent = async (id: string) => {
+  try {
+    // Delete the agent, workflows will auto-delete due to cascade
+    const result = await db.delete(agents).where(eq(agents.id, id));
+	updateTag("workflow-agent-create");
+
+    return {
+      success: true,
+      deletedCount: result.rowCount, // number of agents deleted
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : error,
+    };
+  }
+};

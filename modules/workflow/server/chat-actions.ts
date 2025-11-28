@@ -1,295 +1,108 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
+import { workflows } from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-import { chatSessions, workflows } from "@/drizzle/schema";
 
-interface ExecuteWorkflowParams {
-  agentId: string;
-  userInput: string;
-  conversationHistory: any[];
+interface WorkflowNode {
+	id: string;
+	type: string;
+	data: {
+		label: string;
+		instruction?: string;
+		apiEndpoint?: string;
+		condition?: string;
+		conditionName?: string;
+	};
 }
 
-export async function executeWorkflow({
-  agentId,
-  userInput,
-  conversationHistory,
-}: ExecuteWorkflowParams) {
-  try {
-    // Get the workflow
-    const workflow = await db
-      .select()
-      .from(workflows)
-      .where(eq(workflows.agentId, agentId))
-      .limit(1);
+export async function executeWorkflowChat(
+	workflowId: string,
+	userMessage: string
+) {
+	try {
+		// 1. Get workflow from database
+		const workflow = await db
+			.select()
+			.from(workflows)
+			.where(eq(workflows.agentId, workflowId))
+			.limit(1);
 
-    if (!workflow[0]) {
-      throw new Error("Workflow not found");
-    }
+		if (!workflow[0]) {
+			return { error: "Workflow not found" };
+		}
 
-    const { nodes, edges } = workflow[0];
+		// 2. Parse nodes
+		let nodes: WorkflowNode[];
+		if (typeof workflow[0].nodes === "string") {
+			nodes = JSON.parse(workflow[0].nodes);
+		} else {
+			nodes = workflow[0].nodes as WorkflowNode[];
+		}
 
-    // Execute workflow logic
-    const output = await processWorkflow(
-      nodes as any[],
-      edges as any[],
-      userInput,
-      conversationHistory
-    );
+		// 3. Build simple workflow description for AI
+		const workflowDescription = nodes
+			.filter((n) => n.type !== "StartNode" && n.type !== "EndNode")
+			.map((n, index) => {
+				let desc = `Step ${index + 1}`;
 
-    // Save chat session
-    const newMessages = [
-      ...conversationHistory,
-      { role: "user", content: userInput },
-      { role: "assistant", content: output },
-    ];
+				if (n.type === "AgentNode" && n.data.instruction) {
+					desc += `: ${n.data.instruction}`;
+				}
 
-    await db.insert(chatSessions).values({
-      agentId,
-      messages: newMessages,
-    });
+				if (n.type === "IfElseNode") {
+					const condName = n.data.conditionName || "Check condition";
+					const condLogic = n.data.condition || "No condition";
+					desc += `: If ${condLogic}, then continue; otherwise take alternative path`;
+				}
 
-    return { output };
-  } catch (error) {
-    console.error("Error executing workflow:", error);
-    throw new Error("Failed to execute workflow");
-  }
-}
+				if (n.type === "WhileNode" && n.data.condition) {
+					desc += `: Repeat while ${n.data.condition}`;
+				}
 
-async function processWorkflow(
-  nodes: any[],
-  edges: any[],
-  userInput: string,
-  conversationHistory: any[]
-): Promise<string> {
-  // Find start node
-  const startNode = nodes.find((n) => n.type === "StartNode");
-  if (!startNode) return "Error: No start node found";
+				if (n.type === "APINode" && n.data.apiEndpoint) {
+					desc += `: Fetch data from external source`;
+				}
 
-  // Traverse the workflow
-  let currentNodeId = startNode.id;
-  let output = "";
-  let context = ""; // Store context for passing between nodes
+				return desc;
+			})
+			.join("\n");
 
-  while (currentNodeId) {
-    const currentNode = nodes.find((n) => n.id === currentNodeId);
-    if (!currentNode) break;
+		// 4. Create prompt that hides technical details
+		const fullPrompt = `You are a helpful AI assistant following a specific workflow to help the user.
 
-    // Process based on node type
-    switch (currentNode.type) {
-      case "AgentNode":
-        // Execute agent logic with instruction
-        output = await executeAgentNode(
-          currentNode.data,
-          userInput,
-          conversationHistory,
-          context
-        );
-        context = output; // Store output as context for next nodes
-        break;
+YOUR WORKFLOW (internal - don't mention these steps to the user):
+${workflowDescription}
 
-      case "IfElseNode":
-        // Evaluate condition
-        const conditionMet = await evaluateCondition(
-          currentNode.data.condition,
-          userInput,
-          output,
-          conversationHistory
-        );
-        
-        // Find the correct edge based on condition
-        const conditionalEdge = edges.find(
-          (e) =>
-            e.source === currentNodeId &&
-            (conditionMet ? e.sourceHandle === "true" : e.sourceHandle === "false")
-        );
-        
-        currentNodeId = conditionalEdge?.target || null;
-        continue;
+USER'S MESSAGE:
+${userMessage}
 
-      case "WhileNode":
-        // Loop logic - execute child nodes while condition is true
-        let loopCount = 0;
-        const maxLoops = 10; // Prevent infinite loops
-        
-        while (loopCount < maxLoops) {
-          const shouldContinue = await evaluateCondition(
-            currentNode.data.loopCondition,
-            userInput,
-            output,
-            conversationHistory
-          );
-          
-          if (!shouldContinue) break;
-          
-          // Find and execute loop body
-          const loopEdge = edges.find((e) => e.source === currentNodeId);
-          if (loopEdge) {
-            const loopBodyNode = nodes.find((n) => n.id === loopEdge.target);
-            if (loopBodyNode && loopBodyNode.type === "AgentNode") {
-              output = await executeAgentNode(
-                loopBodyNode.data,
-                userInput,
-                conversationHistory,
-                output
-              );
-            }
-          }
-          
-          loopCount++;
-        }
-        break;
+CRITICAL RULES:
+1. Follow the workflow steps in order
+2. Execute each instruction naturally without mentioning step numbers or technical terms
+3. NEVER mention: "node", "workflow", "step", "agent", "condition", or any technical terminology
+4. NEVER explain your internal process (like "I will assume", "The last node", "I need to evaluate")
+5. Respond as if you're a natural human assistant
+6. Keep responses conversational and helpful
+7. Don't reveal that you're following a workflow
 
-      case "APINode":
-        // Call external API
-        output = await callAPI(currentNode.data, output);
-        context = output;
-        break;
+Act naturally and respond to the user now:`;
 
-      case "EndNode":
-        // Return final message with context
-        const finalMessage = currentNode.data.instruction || output;
-        return finalMessage;
-    }
+		// 5. Let AI handle everything in one call
+		const { text } = await generateText({
+			model: google("gemini-2.5-flash"),
+			prompt: fullPrompt,
+		});
 
-    // Find next node (if not already handled by special logic)
-    if (currentNode.type !== "IfElseNode") {
-      const nextEdge = edges.find((e) => e.source === currentNodeId);
-      currentNodeId = nextEdge?.target || null;
-    }
-  }
-
-  return output || "";
-}
-
-async function executeAgentNode(
-  data: any,
-  userInput: string,
-  conversationHistory: any[],
-  context: string = ""
-): Promise<string> {
-  try {
-    const instruction = data.instruction || "You are a helpful assistant.";
-    const agentLabel = data.label || "Agent";
-
-    // Build messages array for AI
-    const messages: any[] = [];
-
-    // Add system instruction
-    messages.push({
-      role: "system",
-      content: `${instruction}\n\n${context ? `Previous context: ${context}` : ""}`,
-    });
-
-    // Add conversation history
-    conversationHistory.forEach((msg) => {
-      messages.push({
-        role: msg.role === "user" ? "user" : "assistant",
-        content: msg.content,
-      });
-    });
-
-    // Add current user input
-    messages.push({
-      role: "user",
-      content: userInput,
-    });
-
-    // Call Google AI using Vercel AI SDK
-    const { text } = await generateText({
-      model: google("gemini-2.0-flash"), // or "gemini-1.5-pro"
-      messages: messages.map((msg) => ({
-        role: msg.role === "system" ? "user" : msg.role, // Google doesn't support system role
-        content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
-      })),
-      temperature: 0.7,
-    });
-
-    return text;
-  } catch (error) {
-    console.error("Error in executeAgentNode:", error);
-    return "I apologize, but I encountered an error processing your request.";
-  }
-}
-
-async function evaluateCondition(
-  condition: string,
-  userInput: string,
-  context: string,
-  conversationHistory: any[]
-): Promise<boolean> {
-  if (!condition || condition.trim() === "") {
-    return true; // Default to true if no condition
-  }
-
-  try {
-    // Use AI to evaluate complex conditions
-    const { text } = await generateText({
-      model: google("gemini-2.0-flash"),
-      messages: [
-        {
-          role: "user",
-          content: `You are an assistant that evaluates user-provided conditions based on their context. Only focus on the details explicitly provided by the user. Do not make assumptions or introduce unrelated information.
-
-Condition: ${condition}
-User Input: ${userInput}
-Context: ${context}
-
-Task:
-1. Carefully analyze the Condition in relation to the User Input and Context.
-2. Ask the user for clarification or additional explanation only about the information they provided.
-3. Do not discuss or infer anything not mentioned by the user.
-4. Finally, evaluate whether the Condition is true or false based solely on the user-provided details.
-`,
-        },
-      ],
-      temperature: 0,
-    });
-
-    return text.toLowerCase().trim() === "true";
-  } catch (error) {
-    console.error("Error evaluating condition:", error);
-    // Fallback to simple string matching
-    return userInput.toLowerCase().includes(condition.toLowerCase());
-  }
-}
-
-async function callAPI(data: any, context: string): Promise<string> {
-  try {
-    const endpoint = data.apiEndpoint;
-    const config = data.instruction || "{}";
-
-    // Parse configuration
-    let requestConfig: any = {};
-    try {
-      requestConfig = JSON.parse(config);
-    } catch {
-      requestConfig = { data: config };
-    }
-
-    // Add context to request body
-    requestConfig.context = context;
-
-    const response = await fetch(endpoint, {
-      method: requestConfig.method || "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...requestConfig.headers,
-      },
-      body: JSON.stringify(requestConfig.data || requestConfig),
-    });
-
-    if (!response.ok) {
-      throw new Error(`API call failed with status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log(JSON.stringify(result, null, 2))
-    return JSON.stringify(result, null, 2);
-  } catch (error) {
-    console.error("API call error:", error);
-    return `API call failed: ${error instanceof Error ? error.message : "Unknown error"}`;
-  }
+		return { response: text };
+	} catch (error) {
+		console.error("Workflow execution error:", error);
+		return {
+			error: `Failed to execute workflow: ${
+				error instanceof Error ? error.message : "Unknown error"
+			}`,
+		};
+	}
 }
