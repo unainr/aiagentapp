@@ -6,7 +6,7 @@ import { Bot, Zap, ChevronRight } from "lucide-react";
 import { cacheLife, cacheTag } from "next/cache";
 import { DeleteAgentButton } from "../components/delete-workflow";
 
-export const WorkFlowView = async () => {
+export const WorkFlowView = async ({userId}:{userId:string}) => {
 	"use cache";
 	cacheLife("hours");
 	cacheTag("workflow-agent-create");
@@ -49,9 +49,14 @@ export const WorkFlowView = async () => {
 					</Link>
 
 					{/* Delete button outside the Link */}
-					{/* <div className="absolute top-2 right-2">
-						<DeleteAgentButton id={agent.id} />
-					</div> */}
+					{userId&&(
+
+						
+						<div className="absolute top-2 right-2">
+						<DeleteAgentButton userId={userId} agentId={agent.id} />
+					</div>
+						)
+					}
 				</div>
 			))}
 		</>

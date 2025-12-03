@@ -3,7 +3,7 @@
 import { db } from "@/drizzle/db";
 import { agents, workflows } from "@/drizzle/schema";
 import { auth } from "@clerk/nextjs/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { updateTag } from "next/cache";
 
 interface Props {
@@ -68,12 +68,19 @@ return {success:false,error}
 //   return userAgents
 // }
 
-export const deleteAgent = async (id: string) => {
+export const deleteAgent = async (agentId: string, userId: string) => {
   try {
     // Delete the agent, workflows will auto-delete due to cascade
-    const result = await db.delete(agents).where(eq(agents.id, id));
+   const result = await db
+      .delete(agents)
+      .where(
+        and(
+          eq(agents.id, agentId),     // delete only this agent
+          eq(agents.userId, userId)   // ensure it belongs to the user
+        )
+      );
 	updateTag("workflow-agent-create");
-
+	  console.log(result)
     return {
       success: true,
       deletedCount: result.rowCount, // number of agents deleted

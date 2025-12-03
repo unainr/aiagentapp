@@ -38,8 +38,7 @@ export const workFlowExecute = async (
 			return { error: "Workflow JSON is empty or invalid" };
 		}
 
-		const prompt = `
-You are an AI assistant that MUST follow the user's custom workflow.
+		const prompt = `You are an AI assistant that MUST follow the user's custom workflow.
 
 WORKFLOW JSON (follow exactly):
 ${JSON.stringify(savedWorkflow, null, 2)}
@@ -48,13 +47,13 @@ USER MESSAGE:
 ${userMessage}
 
 RULES:
-1. Follow the workflow steps in order.
-2. If a node contains "instruction", follow that instruction in your reply.
-3. If a node contains "apiEndpoint", fetch that API and use the result in your answer.
-4. When replying, act like a chat agent, not JSON.
-5. Keep responses friendly and based only on the workflow.
+1. Follow the workflow steps in exact order - execute each node one by one
+2. If a node contains "instruction", follow that instruction precisely in your reply
+3. If a node contains "apiEndpoint", fetch that API and use the result naturally in your answer
+4. If a node contains "condition", evaluate it intelligently based on the user's message and take the correct path
+5. When replying, act like a natural chat agent, not JSON or technical bot - never mention "workflow", "node", or "step"
+6. Keep responses friendly, conversational, and based ONLY on what the workflow defines - answer exactly what user asks, nothing extra
 `;
-
 		// Call Gemini (Google) via Vercel AI SDK
 		const { text } = await generateText({
 			model: google("gemini-2.5-flash"),
