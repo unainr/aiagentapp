@@ -10,17 +10,18 @@ import { Spinner } from "@/components/ui/spinner";
 import { Trash } from "lucide-react";
 
 interface DeleteAgentButtonProps {
-  id: string;
+  userId: string;
+  agentId:string
 }
 
-export const DeleteAgentButton: React.FC<DeleteAgentButtonProps> = ({ id }) => {
+export const DeleteAgentButton: React.FC<DeleteAgentButtonProps> = ({ userId,agentId }) => {
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
 
   const handleDelete = () => {
     startTransition(async () => {
-      const response = await deleteAgent(id);
+      const response = await deleteAgent(agentId,userId);
       if (response.success) {
         toast.success('Agent and its workflows have been deleted.');
       

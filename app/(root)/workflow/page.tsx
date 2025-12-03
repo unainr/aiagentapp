@@ -1,8 +1,10 @@
 import { AgentWorkFlowSkeleton } from "@/modules/workflow/ui/components/agent-workflow-skeleton";
 import { WorkFlowView } from "@/modules/workflow/ui/view/workflow";
+import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 
-const WorkFlowPage = () => {
+const WorkFlowPage = async () => {
+	const {userId} = await auth()
 	return (
 		<>
 			<div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 p-8 pt-24">
@@ -18,7 +20,7 @@ const WorkFlowPage = () => {
 					{/* Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 						<Suspense fallback={<AgentWorkFlowSkeleton />}>
-							<WorkFlowView />
+							<WorkFlowView userId={userId!} />
 						</Suspense>
 					</div>
 				</div>
