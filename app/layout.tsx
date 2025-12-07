@@ -26,7 +26,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<Suspense>
+		<Suspense fallback={<div>Loading...</div>}>
 			<ClerkProvider>
 				<html lang="en">
 					<body

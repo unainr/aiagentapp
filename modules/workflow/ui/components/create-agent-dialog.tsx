@@ -18,6 +18,7 @@ import { addAgent } from "../../server/workflow.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
+import { Plus } from "lucide-react";
 
 export function CreateAgentDialog() {
 	const router = useRouter();
@@ -47,7 +48,10 @@ export function CreateAgentDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline">Add Agent</Button>
+				  <Button size={'lg'} className="inline-flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white font-semibold px-8 py-4 rounded-xl transition-all w-full">
+                  <Plus className="w-5 h-5" />
+                  <span>Create Workflow</span>
+                </Button>
 			</DialogTrigger>
 
 			<DialogContent className="sm:max-w-[425px]">
@@ -82,10 +86,10 @@ export function CreateAgentDialog() {
 						<Button type="submit">
 							{loading ? (
 								<>
-									Agent Creating... <Spinner />
+									Workflow Creating... <Spinner />
 								</>
 							) : (
-								"Add Agent"
+								"Add Workflow"
 							)}
 						</Button>
 					</DialogFooter>
