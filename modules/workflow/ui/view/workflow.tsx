@@ -2,22 +2,28 @@ import { getExitingWorkFlow } from "../../server/workflow.action";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Agent } from "@/types";
 import Link from "next/link";
-import { Bot, Zap, ChevronRight } from "lucide-react";
+import { Bot, Zap, ChevronRight, Sparkles, Plus } from "lucide-react";
 import { cacheLife, cacheTag } from "next/cache";
 import { DeleteAgentButton } from "../components/delete-workflow";
+import { CreateWorkFlowTemplate } from "../components/create-workflow-template";
 
-export const WorkFlowView = async ({userId}:{userId:string}) => {
+export const WorkFlowView = async ({ userId }: { userId: string }) => {
 	"use cache";
 	cacheLife("hours");
 	cacheTag("workflow-agent-create");
-	const result = await getExitingWorkFlow();
+	const result = await getExitingWorkFlow(userId);
 	if (!result.success) {
 		console.error(result.error);
 		return <div className="text-red-500">Failed to load Workflow</div>;
 	}
 	const getWorkflow = result.data;
+	if (!getWorkflow || getWorkflow.length === 0) {
+		return (
+			<CreateWorkFlowTemplate/>
+		);
+	}
 	return (
-		<>
+		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 			{getWorkflow?.map((agent: Agent) => (
 				<div key={agent.id} className="relative">
 					<Link href={`/workflow/${agent.id}`}>
@@ -49,16 +55,13 @@ export const WorkFlowView = async ({userId}:{userId:string}) => {
 					</Link>
 
 					{/* Delete button outside the Link */}
-					{userId&&(
-
-						
+					{userId && (
 						<div className="absolute top-2 right-2">
-						<DeleteAgentButton userId={userId} agentId={agent.id} />
-					</div>
-						)
-					}
+							<DeleteAgentButton userId={userId} agentId={agent.id} />
+						</div>
+					)}
 				</div>
 			))}
-		</>
+		</div>
 	);
 };

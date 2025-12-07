@@ -48,9 +48,9 @@ export const exitingWorkFlowAgent = async (agentId: string) => {
 
 // TODO: Get Exiting Work Flow
 
-export const getExitingWorkFlow = async () => { 
+export const getExitingWorkFlow = async (userId:string) => { 
 try {
-    const result = await db.select({id:agents.id,name:agents.agent_name}).from(agents)
+    const result = await db.select({id:agents.id,name:agents.agent_name}).from(agents).where(eq(agents.userId,userId))
     return {success:true,data:result}
 } catch (error) {
 return {success:false,error}
