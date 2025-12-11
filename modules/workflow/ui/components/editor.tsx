@@ -270,7 +270,7 @@ export const Editor = ({ agentId, initialWorkflow }: EditorProps) => {
 
 					</Panel>
 					<Background gap={12} size={1} />
-					<Controls />
+					<Controls className="text-black" />
 					{/* <MiniMap /> */}
 				</ReactFlow>
 			</div>

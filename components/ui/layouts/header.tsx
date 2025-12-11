@@ -9,6 +9,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Logo from "./logo";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function MainHeader() {
 	const [isScrolled, setIsScrolled] = React.useState(false);
@@ -90,7 +91,7 @@ export default function MainHeader() {
 							<Link href="/sign-in">Get Started</Link>
 						</Button>
 					</SignedOut>
-
+						<ModeToggle/>
 				</div>
 
 				{/* Mobile Menu Trigger */}
