@@ -41,7 +41,7 @@ export const OtherNodes = () => {
 							className="rounded-2xl p-2 border cursor-grab active:cursor-grabbing shadow-none">
 							<div className="flex gap-3 items-center">
 								<workflow.icon
-									className="p-2 rounded-lg size-8"
+									className="p-2 rounded-lg size-8 text-black"
 									style={{ backgroundColor: workflow.bgColor }}
 								/>
 								<h2 className="text-sm font-medium">{workflow.name}</h2>
