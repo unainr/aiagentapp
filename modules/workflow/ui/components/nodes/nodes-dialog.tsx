@@ -189,9 +189,7 @@ export const NodeDialog = ({
 								<SelectContent>
 									<SelectItem value="GET">GET</SelectItem>
 									<SelectItem value="POST">POST</SelectItem>
-									<SelectItem value="PUT">PUT</SelectItem>
-									<SelectItem value="PATCH">PATCH</SelectItem>
-									<SelectItem value="DELETE">DELETE</SelectItem>
+									
 								</SelectContent>
 							</Select>
 						</div>

@@ -35,9 +35,9 @@ export default function MainHeader() {
 					<Link
 						href="/"
 						className={cn(
-							"text-sm font-medium transition-colors ",
+							"text-sm font-medium transition-colors hover:text-primary",
 							isActive("/") &&
-								"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+								"text-primary font-bold underline underline-offset-4"
 						)}>
 						Home
 					</Link>
@@ -45,36 +45,39 @@ export default function MainHeader() {
 					<Link
 						href="/workflow"
 						className={cn(
-							"text-sm font-medium transition-colors ",
+							"text-sm font-medium transition-colors hover:text-primary",
 							isActive("/workflow") &&
-								"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+								"text-primary font-bold underline underline-offset-4"
 						)}>
-						Work Flow
+						Workflows
 					</Link>
+
 					<Link
-						href="/learning-ai"
+						href="/about"
 						className={cn(
-							"text-sm font-medium transition-colors ",
-							isActive("/learning-ai") &&
-								"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+							"text-sm font-medium transition-colors hover:text-primary",
+							isActive("/about") &&
+								"text-primary font-bold underline underline-offset-4"
 						)}>
-						Learning
+						About
 					</Link>
+
 					<Link
-						href="/journey"
+						href="/contact"
 						className={cn(
-							"text-sm font-medium transition-colors ",
-							isActive("/journey") &&
-								"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+							"text-sm font-medium transition-colors hover:text-primary",
+							isActive("/contact") &&
+								"text-primary font-bold underline underline-offset-4"
 						)}>
-						My Journey
+						Contact
 					</Link>
+
 					<Link
 						href="/pricing"
 						className={cn(
-							"text-sm font-medium transition-colors ",
+							"text-sm font-medium transition-colors hover:text-primary",
 							isActive("/pricing") &&
-								"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+								"text-primary font-bold underline underline-offset-4"
 						)}>
 						Pricing
 					</Link>
@@ -91,7 +94,7 @@ export default function MainHeader() {
 							<Link href="/sign-in">Get Started</Link>
 						</Button>
 					</SignedOut>
-						<ModeToggle/>
+					<ModeToggle />
 				</div>
 
 				{/* Mobile Menu Trigger */}
@@ -107,36 +110,45 @@ export default function MainHeader() {
 								<Link
 									href="/"
 									className={cn(
-										"text-sm font-medium transition-colors ",
+										"text-sm font-medium transition-colors hover:text-primary",
 										isActive("/") &&
-											"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+											"text-primary font-bold underline underline-offset-4"
 									)}>
 									Home
 								</Link>
 								<Link
-									href="workflow"
+									href="/workflow"
 									className={cn(
-										"text-sm font-medium transition-colors ",
+										"text-sm font-medium transition-colors hover:text-primary",
 										isActive("/workflow") &&
-											"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+											"text-primary font-bold underline underline-offset-4"
 									)}>
-									Work Flow
+									Workflows
 								</Link>
 								<Link
-									href="/journey"
+									href="/about"
 									className={cn(
-										"text-sm font-medium transition-colors ",
-										isActive("/journey") &&
-											"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+										"text-sm font-medium transition-colors hover:text-primary",
+										isActive("/about") &&
+											"text-primary font-bold underline underline-offset-4"
 									)}>
-									My Journey
+									About
+								</Link>
+								<Link
+									href="/contact"
+									className={cn(
+										"text-sm font-medium transition-colors hover:text-primary",
+										isActive("/contact") &&
+											"text-primary font-bold underline underline-offset-4"
+									)}>
+									Contact
 								</Link>
 								<Link
 									href="/pricing"
 									className={cn(
-										"text-sm font-medium transition-colors ",
+										"text-sm font-medium transition-colors hover:text-primary",
 										isActive("/pricing") &&
-											"text-[#a288f9] hover:text-[#845fff] transition-all duration-100 ease-in font-semibold underline underline-offset-4"
+											"text-primary font-bold underline underline-offset-4"
 									)}>
 									Pricing
 								</Link>
