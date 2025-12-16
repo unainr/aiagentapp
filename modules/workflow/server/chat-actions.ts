@@ -5,7 +5,7 @@ import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { workflows } from "@/drizzle/schema";
 import { db } from "@/drizzle/db";
-
+import { groq } from '@ai-sdk/groq';
 interface WorkflowNode {
 	id: string;
 	type: string;
@@ -92,7 +92,7 @@ Act naturally and respond to the user now:`;
 
 		// 5. Let AI handle everything in one call
 		const { text } = await generateText({
-			model: google("gemini-1.5-pro-latest"),
+			model: groq("llama-3.3-70b-versatile"),
 			prompt: fullPrompt,
 		});
 

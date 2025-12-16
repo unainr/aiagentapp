@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.44",
+    "@ai-sdk/groq": "^2.0.33",
     "@clerk/nextjs": "^6.35.6",
     "@clerk/themes": "^2.4.44",
     "@neondatabase/serverless": "^1.0.2",
