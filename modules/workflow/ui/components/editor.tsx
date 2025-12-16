@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { saveWorkflow } from "../../server/workflow-create.action";
 import { Spinner } from "@/components/ui/spinner";
 import { WorkflowChat } from "@/components/ui/chat-ui";
+import { EmbedDialog } from "./embed-dialog";
 
 const initialNodes: Node[] = [
 	{
@@ -250,24 +251,27 @@ export const Editor = ({ agentId, initialWorkflow }: EditorProps) => {
 						<AgentWorkflowPanel />
 					</Panel>
 					<Panel position="bottom-center">
-						<Button
-							onClick={handleSaveWorkflow}
-							disabled={isSaving}
-							className="gap-2">
-							<Save className="size-4" />
-							{isSaving ? (
-								<>
-									Saving...
-									<Spinner />
-								</>
-							) : (
-								"Save"
-							)}
-						</Button>
+						<div className="flex fixed bottom-4 right-4 items-center gap-2">
+							<Button
+								onClick={handleSaveWorkflow}
+								disabled={isSaving}
+								className="gap-2">
+								<Save className="size-4" />
+								{isSaving ? (
+									<>
+										Saving...
+										<Spinner />
+									</>
+								) : (
+									"Save"
+								)}
+							</Button>
+							{agentId && <EmbedDialog workflowId={agentId} />}
+						</div>
 					</Panel>
+
 					<Panel position="bottom-right">
 						<WorkflowChat workflowId={agentId!} />
-
 					</Panel>
 					<Background gap={12} size={1} />
 					<Controls className="text-black" />

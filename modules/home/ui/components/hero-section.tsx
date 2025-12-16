@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 // Inline Button Component
@@ -14,7 +15,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 		{
 			variant = "default",
 			size = "default",
-			className = "",
+			className = "cursor-pointer",
 			children,
 			...props
 		},
@@ -76,7 +77,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 									d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"></path>
 							</svg>
 						</span>
-						<span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-200"></span>
+						<span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-linear-to-b from-transparent via-transparent to-gray-200"></span>
 						<span className="relative z-10 flex items-center gap-2 font-semibold">
 							{children}
 						</span>
@@ -271,14 +272,16 @@ const Hero = React.memo(() => {
 			</p>
 
 			<div className="flex items-center gap-4 relative z-10 mb-20">
-				<Button
-					type="button"
-					variant="gradient"
-					size="lg"
-					className="rounded-xl flex items-center justify-center shadow-lg shadow-primary/20"
-					aria-label="Start building workflows with NeuroX">
-					Start Building Free
-				</Button>
+				<Link href="/sign-in">
+					<Button
+						type="button"
+						variant="gradient"
+						size="lg"
+						className="rounded-xl flex items-center justify-center shadow-lg shadow-primary/20"
+						aria-label="Start building workflows with NeuroX">
+						Start Building
+					</Button>
+				</Link>
 			</div>
 
 			<div className="w-full max-w-6xl relative pb-20 px-4">
@@ -290,7 +293,7 @@ const Hero = React.memo(() => {
 
 				<div className="relative z-10 group perspective">
 					<div className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-card transition-transform duration-500 group-hover:scale-[1.01]">
-						<div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none z-20" />
+						<div className="absolute inset-0 bg-linear-to-t from-background/20 to-transparent pointer-events-none z-20" />
 						<Image
 							width={1200}
 							height={800}

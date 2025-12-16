@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, Rocket, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Logo from "./logo";
@@ -52,7 +52,7 @@ export default function MainHeader() {
 						Workflows
 					</Link>
 
-					<Link
+					{/* <Link
 						href="/about"
 						className={cn(
 							"text-sm font-medium transition-colors hover:text-primary",
@@ -70,7 +70,7 @@ export default function MainHeader() {
 								"text-primary font-bold underline underline-offset-4"
 						)}>
 						Contact
-					</Link>
+					</Link> */}
 
 					<Link
 						href="/pricing"
@@ -89,9 +89,13 @@ export default function MainHeader() {
 					</SignedIn>
 					<SignedOut>
 						<Button
+							size={"sm"}
 							asChild
-							className="rounded-lg bg-[#845fff] hover:bg-[#845fff]/90  text-white">
-							<Link href="/sign-in">Get Started</Link>
+							className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 group">
+							<Link href="/sign-in">
+								Start Free
+								<Rocket className="h-4 w-4" />
+							</Link>
 						</Button>
 					</SignedOut>
 					<ModeToggle />
@@ -125,7 +129,7 @@ export default function MainHeader() {
 									)}>
 									Workflows
 								</Link>
-								<Link
+								{/* <Link
 									href="/about"
 									className={cn(
 										"text-sm font-medium transition-colors hover:text-primary",
@@ -142,7 +146,7 @@ export default function MainHeader() {
 											"text-primary font-bold underline underline-offset-4"
 									)}>
 									Contact
-								</Link>
+								</Link> */}
 								<Link
 									href="/pricing"
 									className={cn(
@@ -157,9 +161,13 @@ export default function MainHeader() {
 								</SignedIn>
 								<SignedOut>
 									<Button
+										size={"sm"}
 										asChild
-										className="rounded-lg bg-[#845fff] hover:bg-[#845fff]/90  text-white">
-										<Link href="/sign-in">Get Started</Link>
+										className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 group">
+										<Link href="/sign-in">
+											Start Free
+											<Rocket className="h-4 w-4" />
+										</Link>
 									</Button>
 								</SignedOut>
 							</nav>
