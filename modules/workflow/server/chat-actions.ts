@@ -92,7 +92,7 @@ Act naturally and respond to the user now:`;
 
 		// 5. Let AI handle everything in one call
 		const { text } = await generateText({
-			model: google("gemini-2.5-flash"),
+			model: google("gemini-1.5-pro-latest"),
 			prompt: fullPrompt,
 		});
 

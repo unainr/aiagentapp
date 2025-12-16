@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Embed Test</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+        .container { border: 1px solid #ccc; padding: 2rem; border-radius: 8px; margin-top: 2rem; }
+        code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Agent Embed Test Page</h1>
+    <p>This page demonstrates how the agent widget looks when embedded.</p>
+    <p>Replace <code>YOUR_WORKFLOW_ID</code> in the input below and click "Load Widget" to test specific agents.</p>
+
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="workflowId" placeholder="Enter Workflow ID" style="padding: 8px; width: 300px;">
+        <button onclick="loadWidget()" style="padding: 8px 16px; cursor: pointer;">Load Widget</button>
+    </div>
+
+    <div class="container">
+        <h2>Iframe Mode</h2>
+        <div id="iframe-container">
+            <!-- Iframe will be injected here -->
+            <p><em>Iframe will load here...</em></p>
+        </div>
+    </div>
+
+    <script>
+        function loadWidget() {
+            const id = document.getElementById('workflowId').value;
+            if (!id) {
+                alert('Please enter a Workflow ID');
+                return;
+            }
+
+            // Iframe
+            const iframeContainer = document.getElementById('iframe-container');
+            iframeContainer.innerHTML = `<iframe src="/embed/${id}" width="100%" height="600px" frameborder="0" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>`;
+            
+            // Remove existing script widget if any
+            const existingWidget = document.getElementById('agent-widget-container');
+            if (existingWidget) existingWidget.remove();
+
+            // Script Widget (Floating)
+            // We simulate the script injection
+            const div = document.createElement('div');
+            div.id = 'agent-widget-container';
+            div.style.position = 'fixed';
+            div.style.bottom = '20px';
+            div.style.right = '20px';
+            div.style.zIndex = '9999';
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = `/embed/${id}`;
+            iframe.style.width = '350px';
+            iframe.style.height = '500px';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '10px';
+            iframe.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            
+            div.appendChild(iframe);
+            document.body.appendChild(div);
+        }
+    </script>
+</body>
+</html>
