@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 
 const Footer = () => {
-	const currentYear = new Date().getFullYear();
+
 
 	const footerLinks = [
 		{ name: "Home", href: "/" },
@@ -103,7 +103,7 @@ const Footer = () => {
 				<div className="mt-16 pt-8 border-t border-gray-800">
 					<div className="flex flex-col md:flex-row justify-between items-center gap-4">
 						<p className="text-gray-500 text-sm">
-							© {currentYear} <span className="text-gray-400 font-medium">NeuroX</span>. All rights reserved.
+							© 2025 <span className="text-gray-400 font-medium">NeuroX</span>. All rights reserved.
 						</p>
 						<div className="flex items-center gap-2">
 							<p className="text-gray-500 text-sm">
