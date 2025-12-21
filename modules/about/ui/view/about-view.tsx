@@ -155,7 +155,7 @@ export default function AboutView() {
 							<div className="absolute inset-0 bg-background/10 z-10"></div>
 							{/* Placeholder for a real team/story image */}
 							<div className="aspect-4/3 bg-muted flex items-center justify-center text-muted-foreground">
-								<Users size={64} className="opacity-20" />
+								   <Image src={'/hero2.png'} width={900} height={900} alt="image" />
 							</div>
 						</div>
 					</div>

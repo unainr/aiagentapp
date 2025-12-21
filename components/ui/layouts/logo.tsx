@@ -6,7 +6,7 @@ const Logo = () => {
 			  <Image
 				src="/logo.png" 
 				alt="Book Loom Logo"
-				width={158}
+				width={138}
 				height={50}
 				priority
 			  />
