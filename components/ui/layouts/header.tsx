@@ -52,7 +52,7 @@ export default function MainHeader() {
 						Workflows
 					</Link>
 
-					{/* <Link
+					 <Link
 						href="/about"
 						className={cn(
 							"text-sm font-medium transition-colors hover:text-primary",
@@ -70,7 +70,7 @@ export default function MainHeader() {
 								"text-primary font-bold underline underline-offset-4"
 						)}>
 						Contact
-					</Link> */}
+					</Link> 
 
 					<Link
 						href="/pricing"
@@ -129,7 +129,7 @@ export default function MainHeader() {
 									)}>
 									Workflows
 								</Link>
-								{/* <Link
+								<Link
 									href="/about"
 									className={cn(
 										"text-sm font-medium transition-colors hover:text-primary",
@@ -146,7 +146,7 @@ export default function MainHeader() {
 											"text-primary font-bold underline underline-offset-4"
 									)}>
 									Contact
-								</Link> */}
+								</Link>
 								<Link
 									href="/pricing"
 									className={cn(
