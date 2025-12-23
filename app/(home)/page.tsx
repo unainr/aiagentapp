@@ -4,9 +4,9 @@ import { Suspense } from 'react'
 
 const Home = () => {
   return (
-    <Suspense fallback={<Loader />}>
+ 
       <HomeView/>
-    </Suspense>
+
   )
 }
 

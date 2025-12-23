@@ -2,6 +2,8 @@ import HeroSection from "../components/hero-section";
 import FeaturesSection from "../components/features-section";
 import HowItWorksSection from "../components/how-it-works-section";
 import CTASection from "../components/cta-section";
+import { Suspense } from "react";
+import Loader from "@/components/loading";
 
 export const HomeView = () => {
 	return (
@@ -9,7 +11,9 @@ export const HomeView = () => {
 			<HeroSection />
 			<FeaturesSection />
 			<HowItWorksSection />
-			<CTASection />
+			<Suspense fallback={<Loader />}>
+				<CTASection />
+			</Suspense>
 		</div>
 	);
 };
